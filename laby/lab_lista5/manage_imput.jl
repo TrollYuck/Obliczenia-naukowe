@@ -1,4 +1,4 @@
-
+# Tomasz Niedziałek 279754
 using LinearAlgebra
 
 function load_matrix_from_path(filename::String) :: BlockMatrix

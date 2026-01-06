@@ -1,3 +1,5 @@
+# Tomasz Niedziałek 279754
+
 # ZADANIE 2A: Faktoryzacja LU bez wyboru elementu
 # ZŁOŻONOŚĆ CAŁKOWITA:
 # - CZAS: O(v * l³) = O(n * l²) - dla stałego l: O(n)
@@ -19,7 +21,7 @@ function compute_lu_no_pivot!(M::BlockMatrix{T}) where T
             W = compute_W_matrix(M.A[k], M.C[k].diag)
             
             # A_{k+1} = A_{k+1} - B_{k+1} * W
-            # CZAS: O(l²) - KLUCZOWE: wykorzystuje rzadkość B!
+            # CZAS: O(l²) 
             # PAMIĘĆ: O(1)
             mul_sub_B_W!(M.A[k+1], M.B[k], W)
         end

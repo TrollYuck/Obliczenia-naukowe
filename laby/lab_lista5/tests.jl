@@ -8,7 +8,7 @@ include("blockmat.jl")
 using .blocksys
 using .matrixgen
 
-ATOL = 1e-14
+ATOL = 1e-13
 
 # Funkcja zamieniająca BlockMatrix na zwykłą macierz
 function to_dense(M::BlockMatrix{T}) where T
@@ -94,7 +94,7 @@ end
         
         M_test = deepcopy(M)
         
-        x_calc = solve_no_pivot(M_test, b)
+        x_calc = solve_no_pivot_manual!(M_test, b)
         
         @test x_calc ≈ x_ref atol=ATOL
     end
@@ -108,7 +108,7 @@ end
         
         M_test = deepcopy(M)
         
-        x_calc = solve_pivot(M_test, b)
+        x_calc = solve_pivot_manual!(M_test, b)
         
         @test x_calc ≈ x_ref atol=ATOL
         

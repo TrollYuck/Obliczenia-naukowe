@@ -1,28 +1,22 @@
-# ZADANIE 3A: Rozwiązywanie z gotowym LU (bez pivota)
-# ZŁOŻONOŚĆ CAŁKOWITA:
-# - CZAS: O(v * l²) = O(n * l) - dla stałego l: O(n)
-# - PAMIĘĆ: O(n) dla kopii wektora
+# Tomasz Niedziałek 279754
+
 function solve_from_lu_no_pivot(M_lu::BlockMatrix{T}, b::Vector{T}) where T
-    x = copy(b)  # O(n) czas i pamięć
+    x = copy(b)  
     l = M_lu.l
     v = M_lu.v
-    
-    # === ETAP 1: Forward (L * y = b) ===
+ 
     for k in 1:v
         r_curr = (k-1)*l+1 : k*l
         
         if k > 1
-            # CZAS: O(l) + O(l²) + O(l) = O(l²)
-            # PAMIĘĆ: O(l)
             r_prev = (k-2)*l+1 : (k-1)*l
             y_prev = x[r_prev]
             
-            z = copy(y_prev)  # O(l) pamięć
-            solve_U!(M_lu.A[k-1], z)  # O(l²) czas
+            z = copy(y_prev)
+            solve_U!(M_lu.A[k-1], z)
             
             B = M_lu.B[k-1]
-            
-            # Mnożenie rzadkie B * z - O(l) czas
+
             val = dot(B.top_row, z)
             x[r_curr[1]] -= val
             
@@ -32,18 +26,12 @@ function solve_from_lu_no_pivot(M_lu::BlockMatrix{T}, b::Vector{T}) where T
             end
         end
         
-        # Rozwiąż lokalne L_k * y_k = ...
-        # CZAS: O(l²), PAMIĘĆ: O(1)
         solve_L!(M_lu.A[k], view(x, r_curr))
     end
-    # SUMA ETAP 1: v * O(l²) = O(n * l)
-    
-    # === ETAP 2: Backward (U * x = y) ===
-    
-    # Ostatni blok: O(l²) czas
+
     solve_U!(M_lu.A[v], view(x, (v-1)*l+1 : v*l))
     
-    # Pętla w górę: v-1 iteracji
+
     for k in v-1:-1:1
         r_curr = (k-1)*l+1 : k*l
         r_next = k*l+1 : (k+1)*l
@@ -64,12 +52,9 @@ function solve_from_lu_no_pivot(M_lu::BlockMatrix{T}, b::Vector{T}) where T
     
     return x
 end
-# CAŁKOWITA ZŁOŻONOŚĆ solve_from_lu_no_pivot:
-# - CZAS: O(n * l) - dla stałego l: O(n)
-# - PAMIĘĆ: O(n) dla kopii wektora + O(l) tymczasowa
 
 # ZADANIE 3B: Rozwiązywanie z gotowym LU (z pivotem)
-# ZŁOŻONOŚĆ CAŁKOWITA: identyczna jak solve_from_lu_no_pivot
+# ZŁOŻONOŚĆ CAŁKOWITA:
 # - CZAS: O(n * l) - dla stałego l: O(n)
 # - PAMIĘĆ: O(n)
 function solve_from_lu_pivot(M_lu::BlockMatrix{T}, perms::Vector{Vector{Int}}, b::Vector{T}) where T
@@ -77,7 +62,7 @@ function solve_from_lu_pivot(M_lu::BlockMatrix{T}, perms::Vector{Vector{Int}}, b
     l = M_lu.l
     v = M_lu.v
     
-    # === ETAP 1: Forward ===
+    #   ETAP 1: Forward  
     for k in 1:v
         r_curr = (k-1)*l+1 : k*l
         
@@ -98,12 +83,11 @@ function solve_from_lu_pivot(M_lu::BlockMatrix{T}, perms::Vector{Vector{Int}}, b
             end
         end
         
-        # Tu różnica: używamy permutacji w solve_L
-        # O(l²) czas, O(l) pamięć dodatkowa w solve_L
+        # używamy permutacji w solve_L
         solve_L!(M_lu.A[k], view(x, r_curr), perms[k])
     end
     
-    # === ETAP 2: Backward ===
+    #   ETAP 2: Backward  
     solve_U!(M_lu.A[v], view(x, (v-1)*l+1 : v*l))
     
     for k in v-1:-1:1
@@ -131,6 +115,3 @@ function solve_from_lu_pivot(M_lu::BlockMatrix{T}, perms::Vector{Vector{Int}}, b
     
     return x
 end
-# CAŁKOWITA ZŁOŻONOŚĆ solve_from_lu_pivot:
-# - CZAS: O(n * l) - dla stałego l: O(n)
-# - PAMIĘĆ: O(n) + O(l) tymczasowa
